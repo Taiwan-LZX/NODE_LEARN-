@@ -1,0 +1,53 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  --color-bg: #F5F5F5;
+  --color-card-white: #FFFFFF;
+  --color-card-black: #121212;
+  --color-accent-red: #EB0000;
+  --color-text-main: #121212;
+  --color-text-dim: #888888;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-main);
+}
+
+.dot-matrix {
+  display: grid;
+  grid-template-columns: repeat(4, 4px);
+  gap: 2px;
+}
+.dot {
+  width: 4px;
+  height: 4px;
+  background: currentColor;
+  border-radius: 50%;
+  opacity: 0.3;
+}
+.dot.active { opacity: 1; }
+
+.cursor-blink {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background: var(--color-accent-red);
+  vertical-align: middle;
+  animation: blink 0.8s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--color-accent-red);
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
