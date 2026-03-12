@@ -12,10 +12,21 @@ export function LayoutEngine() {
   const moveModule = useLayoutStore(s => s.moveModule);
   const expandedModule = useLayoutStore(s => s.expandedModule);
   const setExpandedModule = useLayoutStore(s => s.setExpandedModule);
+  const setIsDragging = useLayoutStore(s => s.setIsDragging);
   
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [hoveredTargetIndex, setHoveredTargetIndex] = useState<number | null>(null);
   const swapTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Dynamic theme for expanded container
+  const expandedConfig = expandedModule ? MODULE_REGISTRY[expandedModule] : null;
+  const themeClasses = {
+    light: 'bg-card-white text-text-main',
+    dark: 'bg-card-black text-white',
+    red: 'bg-accent-red text-white',
+    transparent: 'bg-transparent text-white border-none shadow-none',
+  };
+  const expandedThemeClass = expandedConfig ? themeClasses[expandedConfig.expandedTheme || expandedConfig.theme || 'light'] : themeClasses.light;
 
   return (
     <>
@@ -32,16 +43,6 @@ export function LayoutEngine() {
             if (!config) return null;
             const Component = config.component;
             
-            // 如果模块被展开，在网格中保留一个透明占位符，保持布局稳定
-            if (expandedModule === id) {
-              return (
-                <div 
-                  key={`placeholder-${id}`} 
-                  className={`col-span-${config.colSpan || 1} row-span-${config.rowSpan || 1}`}
-                />
-              );
-            }
-
             // 算法：智能形态扩张填充
             // 根据模块的 shape 属性决定扩张策略，防止圆形或方形被拉伸变形
             let dynamicColSpan = config.colSpan || 1;
@@ -79,6 +80,17 @@ export function LayoutEngine() {
               }
             }
 
+            // 如果模块被展开，在网格中保留一个透明占位符，保持布局稳定
+            // 必须使用计算后的 dynamicColSpan 和 dynamicRowSpan，否则背景布局会乱动
+            if (expandedModule === id) {
+              return (
+                <div 
+                  key={`placeholder-${id}`} 
+                  className={`col-span-${dynamicColSpan} row-span-${dynamicRowSpan}`}
+                />
+              );
+            }
+
             return (
               <ModuleContainer
                 key={id}
@@ -91,6 +103,7 @@ export function LayoutEngine() {
                 isDragTarget={hoveredTargetIndex === index}
                 className={draggedIndex === index ? 'opacity-40 scale-95 z-0' : 'z-10'}
                 onDragStart={(e: any) => {
+                  setIsDragging(true);
                   setDraggedIndex(index);
                   e.dataTransfer.effectAllowed = 'move';
                 }}
@@ -124,11 +137,13 @@ export function LayoutEngine() {
                     setHoveredTargetIndex(null);
                     if (swapTimerRef.current) clearTimeout(swapTimerRef.current);
                   }
+                  setTimeout(() => setIsDragging(false), 100);
                 }}
                 onDragEnd={() => {
                   setDraggedIndex(null);
                   setHoveredTargetIndex(null);
                   if (swapTimerRef.current) clearTimeout(swapTimerRef.current);
+                  setTimeout(() => setIsDragging(false), 100);
                 }}
               >
                 <Component />
@@ -150,13 +165,15 @@ export function LayoutEngine() {
           >
             <motion.div
               layoutId={`module-${expandedModule}`}
-              className="w-full max-w-5xl h-[85vh] bg-card-white rounded-[48px] shadow-2xl overflow-hidden relative cursor-default border border-black/10 flex flex-col"
+              className={`w-full max-w-5xl h-[85vh] rounded-[48px] shadow-2xl overflow-hidden relative cursor-default border border-black/10 flex flex-col ${expandedThemeClass}`}
               onClick={(e) => e.stopPropagation()}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             >
               <button
                 onClick={() => setExpandedModule(null)}
-                className="absolute top-8 right-8 z-50 w-12 h-12 bg-black/5 hover:bg-black/10 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+                className={`absolute top-8 right-8 z-50 w-12 h-12 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+                  expandedConfig?.theme === 'dark' ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-black/5 hover:bg-black/10 text-black'
+                }`}
               >
                 <X size={24} />
               </button>

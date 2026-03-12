@@ -17,7 +17,8 @@ export interface ModuleConfig {
   component: React.FC<ModuleProps>;
   colSpan?: 1 | 2 | 3 | 4 | 5;
   rowSpan?: 1 | 2 | 3 | 4 | 5;
-  theme?: 'light' | 'dark' | 'red';
+  theme?: 'light' | 'dark' | 'red' | 'transparent';
+  expandedTheme?: 'light' | 'dark' | 'red' | 'transparent';
   shape?: 'square' | 'rect' | 'circle';
   expandable?: boolean;
 }
@@ -30,5 +31,5 @@ export const MODULE_REGISTRY: Record<string, ModuleConfig> = {
   'knowledge-graph': { id: 'knowledge-graph', name: 'Knowledge Graph', component: KnowledgeGraphModule, theme: 'dark', colSpan: 2, rowSpan: 2, expandable: true },
   'compute': { id: 'compute', name: 'Compute Monitor', component: ComputeModule },
   'quick-test': { id: 'quick-test', name: 'Quick Test', component: QuickTestModule, expandable: true },
-  'settings': { id: 'settings', name: 'Settings', component: SettingsModule, theme: 'dark' },
+  'settings': { id: 'settings', name: 'Settings', component: SettingsModule, theme: 'dark', expandedTheme: 'transparent', expandable: true },
 };

@@ -4,10 +4,12 @@ interface LayoutState {
   activeModules: string[];
   availableModules: string[];
   expandedModule: string | null;
+  isDragging: boolean;
   addModule: (id: string) => void;
   removeModule: (id: string) => void;
   moveModule: (fromIndex: number, toIndex: number) => void;
   setExpandedModule: (id: string | null) => void;
+  setIsDragging: (isDragging: boolean) => void;
 }
 
 export const useLayoutStore = create<LayoutState>((set) => ({
@@ -17,6 +19,7 @@ export const useLayoutStore = create<LayoutState>((set) => ({
     'knowledge-graph', 'compute', 'quick-test', 'settings'
   ],
   expandedModule: null,
+  isDragging: false,
   addModule: (id) => set((state) => ({
     activeModules: [...state.activeModules, id],
     availableModules: state.availableModules.filter(m => m !== id)
@@ -32,5 +35,6 @@ export const useLayoutStore = create<LayoutState>((set) => ({
     newActive.splice(toIndex, 0, moved);
     return { activeModules: newActive };
   }),
-  setExpandedModule: (id) => set({ expandedModule: id })
+  setExpandedModule: (id) => set({ expandedModule: id }),
+  setIsDragging: (isDragging) => set({ isDragging })
 }));

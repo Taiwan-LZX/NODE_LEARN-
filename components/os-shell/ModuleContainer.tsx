@@ -10,7 +10,7 @@ import { MODULE_REGISTRY } from '@/src/core/layout/ModuleRegistry';
 interface ModuleContainerProps extends HTMLMotionProps<"div"> {
   children: ReactNode;
   className?: string;
-  theme?: 'light' | 'dark' | 'red';
+  theme?: 'light' | 'dark' | 'red' | 'transparent';
   colSpan?: 1 | 2 | 3 | 4 | 5;
   rowSpan?: 1 | 2 | 3 | 4 | 5;
   shape?: 'square' | 'rect' | 'circle';
@@ -31,6 +31,7 @@ export function ModuleContainer({
 }: ModuleContainerProps) {
   const removeModule = useLayoutStore(s => s.removeModule);
   const setExpandedModule = useLayoutStore(s => s.setExpandedModule);
+  const isDragging = useLayoutStore(s => s.isDragging);
   const [showConfirm, setShowConfirm] = useState(false);
 
   const isExpandable = moduleId ? MODULE_REGISTRY[moduleId]?.expandable : false;
@@ -39,6 +40,7 @@ export function ModuleContainer({
     light: 'bg-card-white text-text-main border border-black/5',
     dark: 'bg-card-black text-white',
     red: 'bg-accent-red text-white flex-col justify-center items-center text-center',
+    transparent: 'bg-transparent text-white',
   };
 
   const shapeClasses = {
@@ -64,6 +66,7 @@ export function ModuleContainer({
   }[rowSpan] || 'row-span-1';
 
   const handleClick = () => {
+    if (isDragging) return;
     if (isExpandable && moduleId) {
       setExpandedModule(moduleId);
     }
